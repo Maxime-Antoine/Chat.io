@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Chat test</title>
+		<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css' />
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+	</head>
+	<body>
+		<div class='container'>
+			<div class='row'>
+				<div class='col-xs-8'>
+					<ul id='messages' class='list-unstyled well'></ul>
+				</div>
+				<div class='col-xs-3 col-xs-offset-1'>
+					<ul id='clients' class='list-unstyled well'></ul>
+				</div>
+			</div>
+			<div class='row'>
+				<form action="" role="form" class="form-inline">
+					<input id='msg' class='form-control' /><button class="btn btn-warning form-control">Send</button>
+				</form>
+			</div>
+		</div>
+		<script type='text/javascript' src="/socket.io/socket.io.js"></script>
+		<script type='text/javascript' src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script type='text/javascript'>
+			var socket = io();
+			name = prompt('What\'s your name ?');
+			socket.emit('registration', name);
+
+			$('form').submit(function(){
+				if ($('#msg').val() !== ""){
+					socket.emit('chat message', { name:name, msg: $('#msg').val() });
+					$('#msg').val('');
+				}
+				return false;
+			});
+			socket.on('chat message', function(data){
+				$('#messages').append($('<li>').text(data.name + ": " + data.msg));
+			}).on('message', function(msg){
+				if (msg != "undefined left")
+					$('#messages').append($('<li>').text(msg));
+			}).on('connected clients', function(clients){
+				$('#clients').empty();
+				clients.forEach(function(client){
+					$('#clients').append($('<li>').text(client));
+				});
+			});
+		</script>
+	</body>
+</html>
